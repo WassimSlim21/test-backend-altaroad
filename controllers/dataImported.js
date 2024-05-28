@@ -16,7 +16,8 @@ async function getImportedData(req, res, next) {
   const { Table_name, Columns, spreadsheetId, range } = req.body;
   
   console.log("Request body:", req.body);
-  
+  console.log("Columns *****************************", Columns);
+
   // Check if Table_name or Columns are not provided in the request body.
   if (!Table_name || !Columns) {
     // Send a 400 Bad Request response with an error message.

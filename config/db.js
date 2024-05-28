@@ -13,7 +13,7 @@ const config = {
     options: {
         encrypt: false, // Set to true if using Azure SQL Database or to enable encryption.
         enableArithAbort: true, // Option to enable or disable arithmetic abort.
-    },
+    }
 };
 
 // Create a connection pool and connect to the SQL Server using the configuration.

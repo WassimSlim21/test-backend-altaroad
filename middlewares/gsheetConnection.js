@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const keys = require("../key.json");
+const keys = require("../pure-album-424009-r3-ada263ed3e56.json");
 
 async function connectToGsheet(req, res, next) {
     try {
