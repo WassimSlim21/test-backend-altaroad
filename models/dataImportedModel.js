@@ -11,25 +11,23 @@ const { sql, poolPromise } = require('../config/db');
  */
 async function getImportedData(tableName, columns) {
     try {
-        // Await the resolved pool promise to get the connection pool.
-        const pool = await poolPromise;
-
-        // Construct the SQL query dynamically based on the provided columns.
-        const columnNames = Object.keys(columns).join(', ');
-        const query = `SELECT ${columnNames} FROM ${tableName}`;
-
-        // Execute the SQL query.
-        const result = await pool.request().query(query);
-
-        // Return the result set from the query.
-        return result.recordset;
+      console.log(`Connecting to the database to fetch data from table: ${tableName} with columns: ${Object.keys(columns).join(', ')}`);
+      const pool = await poolPromise;
+  
+      const columnNames = Object.keys(columns).join(', ');
+      const query = `SELECT ${columnNames} FROM ${tableName}`;
+  
+      console.log(`Executing query: ${query}`);
+      const result = await pool.request().query(query);
+  
+    //   console.log("Data retrieved from the database:", result.recordset);
+      return result.recordset;
     } catch (err) {
-        // Throw an error if the query or connection fails.
-        throw new Error(err);
+      console.error("Error retrieving data from the database:", err);
+      throw new Error(err);
     }
-}
-
-// Export the getImportedData function for use in other parts of the application.
-module.exports = {
-    getImportedData
-};
+  }
+  
+  module.exports = {
+    getImportedData,
+  };

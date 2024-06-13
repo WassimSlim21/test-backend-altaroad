@@ -1,27 +1,45 @@
 const { google } = require('googleapis');
-const keys = require("../pure-album-424009-r3-ada263ed3e56.json");
+const keys = require("../key.json");
 
+/**
+ * Middleware to connect to Google Sheets API.
+ *
+ * This middleware function establishes a connection to the Google Sheets API using
+ * the provided service account credentials. Once authenticated, it adds the 
+ * authenticated client to the request object and passes control to the next middleware
+ * or route handler.
+ *
+ * @param {Object} req - The request object, containing information about the HTTP request.
+ * @param {Object} res - The response object, used to send a response back to the client.
+ * @param {Function} next - The next middleware function in the stack.
+ */
 async function connectToGsheet(req, res, next) {
-    try {
-        const auth = new google.auth.JWT(
-            keys.client_email,
-            null,
-            keys.private_key,
-            ['https://www.googleapis.com/auth/spreadsheets']
-        );
+  try {
+    // Create a new JWT client using the service account credentials
+    const auth = new google.auth.JWT(
+      keys.client_email,    // Client email from the service account
+      null,                 // Path to the private key file (not used here)
+      keys.private_key,     // Private key from the service account
+      ['https://www.googleapis.com/auth/spreadsheets'] // Scopes required for accessing Google Sheets
+    );
 
-        await auth.authorize();
-        console.log('Connected to Google Sheets');
-        
-        // You can do further operations with the authorized client here
+    // Authorize the client to use the Google Sheets API
+    await auth.authorize();
+    console.log('Connected to Google Sheets');
 
-        // Pass the authenticated client to the next middleware or route handler
-        req.authClient = auth;
-        next();
-    } catch (error) {
-        console.error('Error connecting to Google Sheets:', error);
-        res.status(500).json({ error: 'Failed to connect to Google Sheets' });
-    }
+    // Attach the authenticated client to the request object
+    req.authClient = auth;
+
+    // Pass control to the next middleware or route handler
+    next();
+  } catch (error) {
+    // Log the error if the connection fails
+    console.error('Error connecting to Google Sheets:', error);
+
+    // Send a 500 Internal Server Error response to the client
+    res.status(500).json({ error: 'Failed to connect to Google Sheets' });
+  }
 }
 
+// Export the middleware function to be used in other parts of the application
 module.exports = connectToGsheet;
