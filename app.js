@@ -34,6 +34,7 @@ app.use(function(req, res, next) {
   next(createError(404)); // Create a 404 error and pass it to the next middleware (error handler).
 });
 
+
 // Error handler.
 app.use(function(err, req, res, next) {
   // Set locals, only providing error details in development.

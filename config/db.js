@@ -9,6 +9,7 @@ const config = {
     password: process.env.DB_PASSWORD, // Database password from environment variables.
     server: process.env.DB_SERVER, // Database server address, e.g., 'localhost' or 'ip_address'.
     database: process.env.DB_DATABASE, // Database name from environment variables.
+    host: "host.docker.internal",
     port: parseInt(process.env.DB_PORT, 10), // Database port number, default for SQL Server is 1433.
     options: {
         encrypt: false, // Set to true if using Azure SQL Database or to enable encryption.
