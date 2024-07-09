@@ -1,15 +1,12 @@
 pipeline {
     agent any
 
-    environment {
-        SONAR_TOKEN = credentials('<sonar-token-credential-id>')
-        DOCKER_REGISTRY = '<docker-registry-url>'
-        IMAGE_NAME = 'my-node-app'
-        CONTAINER_PORT = 3000
+    tools {
+        nodejs 'NodeJS'
     }
 
-    tools {
-        nodejs 'NodeJS' // Ensure 'NodeJS' matches the NodeJS installation defined in Jenkins global tools
+    environment {
+        SONAR_TOKEN = credentials('sonarqube-api')
     }
 
     stages {
@@ -38,7 +35,6 @@ pipeline {
                     sonar-scanner \
                       -Dsonar.projectKey=my-node-app \
                       -Dsonar.projectName=My Node App \
-                      -Dsonar.projectVersion=1.0 \
                       -Dsonar.sources=. \
                       -Dsonar.host.url=http://localhost:9000 \
                       -Dsonar.login=$SONAR_TOKEN
@@ -49,26 +45,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    def dockerImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
-                    dockerImage.push()
-                }
+                sh 'docker build -t my-node-app .'
             }
         }
 
         stage('Deploy Docker Container') {
             steps {
-                sh 'docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}'
+                sh 'docker run -d -p 3000:3000 my-node-app'
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline successfully executed! Deployment complete.'
-        }
-        failure {
-            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
