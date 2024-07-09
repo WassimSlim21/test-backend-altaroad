@@ -20,7 +20,7 @@ RUN npm install
 COPY . .
 
 # Définir les variables d'environnement
-ENV DB_SERVER="192.168.137.84"
+ENV DB_SERVER="192.168.175.252"
 ENV DB_DATABASE="AdventureWorks2022"
 ENV DB_USER="sa"
 ENV DB_PASSWORD="123456"

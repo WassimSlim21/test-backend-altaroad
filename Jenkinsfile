@@ -1,18 +1,21 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS'
+    environment {
+        SONAR_TOKEN = credentials('<sonar-token-credential-id>')
+        DOCKER_REGISTRY = '<docker-registry-url>'
+        IMAGE_NAME = 'my-node-app'
+        CONTAINER_PORT = 3000
     }
 
-    environment {
-        SONAR_TOKEN = credentials('sonar-token') // Assurez-vous que 'sonar-token' est configuré dans Jenkins
+    tools {
+        nodejs 'NodeJS' // Ensure 'NodeJS' matches the NodeJS installation defined in Jenkins global tools
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/WaassimDev/proj-x-gsheet.git'
+                git branch: 'devops-integration', url: 'https://github.com/WaassimDev/proj-x-gsheet.git'
             }
         }
 
@@ -34,6 +37,8 @@ pipeline {
                     sh """
                     sonar-scanner \
                       -Dsonar.projectKey=my-node-app \
+                      -Dsonar.projectName=My Node App \
+                      -Dsonar.projectVersion=1.0 \
                       -Dsonar.sources=. \
                       -Dsonar.host.url=http://localhost:9000 \
                       -Dsonar.login=$SONAR_TOKEN
@@ -44,14 +49,26 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-node-app .'
+                script {
+                    def dockerImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
+                    dockerImage.push()
+                }
             }
         }
 
         stage('Deploy Docker Container') {
             steps {
-                sh 'docker run -d -p 3000:3000 my-node-app'
+                sh 'docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline successfully executed! Deployment complete.'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
