@@ -1,58 +1,80 @@
 pipeline {
-    agent any
+  agent any
 
-    tools {
-        nodejs 'NodeJS'
+  environment {
+    // Path to Python installation
+    PYTHON = '/usr/bin/python3'
+    // Add Python to PATH
+    PATH = "/usr/bin/python3:${env.PATH}"
+  }
+
+  tools {
+    nodejs 'NodeJS' // Name of the NodeJS tool configuration in Jenkins
+  }
+
+  stages {
+    stage('Tool Install') {
+      steps {
+        script {
+          def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallation'
+          env.PATH = "${nodeHome}/bin:${env.PATH}"
+        }
+      }
     }
 
-    environment {
-        SONAR_TOKEN = credentials('sonarqube-api')
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/WaassimDev/proj-x-gsheet.git', branch: 'devops-integration'
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'devops-integration', url: 'https://github.com/WaassimDev/proj-x-gsheet.git'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'npm test'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                    sonar-scanner \
-                      -Dsonar.projectKey=my-node-app \
-                      -Dsonar.projectName=My Node App \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.login=$SONAR_TOKEN
-                    """
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t my-node-app .'
-            }
-        }
-
-        stage('Deploy Docker Container') {
-            steps {
-                sh 'docker run -d -p 3000:3000 my-node-app'
-            }
-        }
+    stage('Install Dependencies') {
+      steps {
+        sh 'npm install'
+      }
     }
+
+    stage('Run Tests') {
+      steps {
+        sh 'npm test'
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        withSonarQubeEnv('SonarQube') {
+          sh 'npm run sonar'
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        script {
+          dockerImage = docker.build("myapp:${env.BUILD_ID}")
+        }
+      }
+    }
+
+    stage('Deploy Docker Container') {
+      steps {
+        script {
+          dockerImage.run('-p 3000:3000')
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'test-results/**/*.xml'
+      archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+    }
+    success {
+      echo 'Build completed successfully'
+    }
+    failure {
+      echo 'Build failed'
+    }
+  }
 }
