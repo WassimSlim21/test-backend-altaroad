@@ -22,6 +22,7 @@ const poolPromise = new sql.ConnectionPool(config)
     .connect() // Attempt to establish a connection.
     .then(pool => {
         console.log('Connected to SQL Server'); 
+        console.log('Connected'); 
         // Log success message on successful connection.
         return pool; // Return the connected pool.
     })
