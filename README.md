@@ -49,20 +49,20 @@ Example using curl: curl -F "file=@/path/to/your/image.jpg" http://localhost:300
 
 ## Project Structure
 
-file-upload-service/
-├── controllers/
-│   └── upload.js             # Upload controller
-├── middleware/
-│   └── uploadMiddleware.js   # Promisified upload middleware
-├── routes/
-│   └── uploadRoute.js        # Upload route
-├── public/
-│   └── uploads/              # Directory for uploaded files
-├── views/
-│   └── error.jade            # Error view
-├── app.js                    # Main application file
-├── package.json              # Project metadata and dependencies
-└── README.md                 # Project documentation
+- **`file-upload-service/`**
+  - **`controllers/`**
+    - `upload.js`: Upload controller.
+  - **`middleware/`**
+    - `uploadMiddleware.js`: Promisified upload middleware.
+  - **`routes/`**
+    - `uploadRoute.js`: Upload route.
+  - **`public/`**
+    - `uploads/`: Directory for uploaded files.
+  - **`views/`**
+    - `error.jade`: Error view.
+  - `app.js`: Main application file.
+  - `package.json`: Project metadata and dependencies.
+  - `README.md`: Project documentation.
 
 ## Detailed Code Explanation
 - Controller : upload.js
